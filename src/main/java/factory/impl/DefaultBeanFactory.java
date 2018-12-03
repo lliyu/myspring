@@ -11,7 +11,6 @@ import org.apache.commons.logging.LogFactory;
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +30,9 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
     private Map<String, BeanDefinition> bdMap = new ConcurrentHashMap<>();
 
     private Map<String, Object> beanMap = new ConcurrentHashMap<>();
+
+    //记录正在创建的bean
+    private ThreadLocal<Set<String>> buildingBeans = new ThreadLocal<>();
 
     @Override
     public void register(BeanDefinition bd, String beanName) {
@@ -74,6 +76,9 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
             log.info("[" + beanName + "]不存在");
         }
 
+        //判断该bean是否已经实例化
+        //todo
+
         Object instance = beanMap.get(beanName);
 
         if(instance != null){
@@ -82,7 +87,7 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
 
         //不存在则进行创建
         if(!this.bdMap.containsKey(beanName)){
-            log.info("不存在名为：[" + beanName + "]的bean定义");
+            log.info("不存在名为：[" + beanName + "]的bean定义,即将进行创建");
         }
 
         BeanDefinition bd = this.bdMap.get(beanName);
@@ -126,11 +131,17 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
                 String beanName = ((BeanReference) arg).getBeanName();
                 value = this.doGetBean(beanName);
             }else if(arg instanceof List){
-
+                List<BeanReference> references = (List<BeanReference>) arg;
+                List param = new LinkedList();
+                for(BeanReference reference:references){
+                    Object o = this.doGetBean(reference.getBeanName());
+                    param.add(o);
+                }
+                value = param;
             }else if(arg instanceof Map){
-
+                //todo 处理map
             }else if(arg instanceof Properties){
-
+                //todo 处理属性文件
             }else {
                 value = arg;
             }

@@ -1,5 +1,4 @@
 import bean.User;
-import beandefinition.BeanDefinition;
 import beandefinition.impl.DefaultBeanDefinition;
 import factory.impl.DefaultBeanFactory;
 import org.junit.Test;
