@@ -2,6 +2,7 @@ package factory.impl;
 
 import beandefinition.BeanDefinition;
 import beandefinition.BeanDefinitionRegistry;
+import beanreference.BeanReference;
 import factory.BeanFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -9,10 +10,10 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -37,8 +38,9 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
         if(StringUtils.isBlank(beanName)){
             log.error("beanName不能为空 beanName:" + beanName);
         }
-        if(bd != null){
+        if(bd == null){
             log.error("BeanDefinition不能为空 bd:" + beanName);
+            return;
         }
 
         if(bdMap.containsKey(beanName)){
@@ -46,12 +48,11 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
         }
 
         if(!bd.validate()){
-            log.info("BeanDefinition不合法");
+            log.error("BeanDefinition不合法");
+            return;
         }
 
-        if(!bdMap.containsKey(beanName)){
-            bdMap.put(beanName, bd);
-        }
+        bdMap.put(beanName, bd);
     }
 
     @Override
@@ -63,6 +64,7 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
     public BeanDefinition getBeanDefinition(String beanName) {
         if(!bdMap.containsKey(beanName)){
             log.info("[" + beanName + "]不存在");
+            return null;
         }
         return bdMap.get(beanName);
     }
@@ -88,7 +90,7 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
         Class<?> beanClass = bd.getBeanClass();
 
         if(beanClass != null){
-            instance = createBeanByConstruct(beanClass);
+            instance = createBeanByConstruct(bd);
             if(instance == null){
                 instance = createBeanByStaticFactoryMethod(bd);
             }
@@ -105,6 +107,105 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
         return instance;
     }
 
+    /**
+     * 解析传入的构造参数值
+     * @param constructorArgs
+     * @return
+     */
+    private Object[] parseConstructorArgs(List constructorArgs) throws IllegalAccessException, InstantiationException {
+
+        if(constructorArgs==null || constructorArgs.size()==0){
+            return null;
+        }
+
+        Object[] args = new Object[constructorArgs.size()];
+        for(int i=0;i<constructorArgs.size();i++){
+            Object arg = constructorArgs.get(i);
+            Object value = null;
+            if(arg instanceof BeanReference){
+                String beanName = ((BeanReference) arg).getBeanName();
+                value = this.doGetBean(beanName);
+            }else if(arg instanceof List){
+
+            }else if(arg instanceof Map){
+
+            }else if(arg instanceof Properties){
+
+            }else {
+                value = arg;
+            }
+            args[i] = value;
+        }
+        return args;
+    }
+
+    private Constructor<?> matchConstructor(BeanDefinition bd, Object[] args) throws Exception {
+        //先进行精确匹配 如果能匹配到相应的构造方法 则后续不用进行
+        if(args == null){
+            return bd.getBeanClass().getConstructor(null);
+        }
+        //如果已经缓存了 则直接返回
+        if(bd.getConstructor() != null)
+            return bd.getConstructor();
+
+        int len = args.length;
+        Class[] param = new Class[len];
+        //构造参数列表
+        for(int i=0;i<len;i++){
+            param[i] = args[i].getClass();
+        }
+        //匹配
+        Constructor constructor = null;
+        try {
+            constructor = bd.getBeanClass().getConstructor(param);
+        } catch (Exception e) {
+            //这里上面的代码如果没匹配到会抛出空指针异常
+            //为了代码继续执行 这里我们来捕获 但是不需要做其他任何操作
+        }
+        if(constructor != null){
+            return constructor;
+        }
+
+        //未匹配到 继续匹配
+        List<Constructor> firstFilterAfter = new LinkedList<>();
+        Constructor[] constructors = bd.getBeanClass().getConstructors();
+        //按参数个数匹配
+        for(Constructor cons:constructors){
+            if(cons.getParameterCount() == len){
+                firstFilterAfter.add(cons);
+            }
+        }
+
+        if(firstFilterAfter.size()==1){
+            return firstFilterAfter.get(0);
+        }
+        if(firstFilterAfter.size()==0){
+            log.error("不存在对应的构造函数：" + args);
+            throw new Exception("不存在对应的构造函数：" + args);
+        }
+        //按参数类型匹配
+        //获取所有参数类型
+        boolean isMatch = true;
+        for(int i=0;i<firstFilterAfter.size();i++){
+            Class[] types = firstFilterAfter.get(i).getParameterTypes();
+            for(int j=0;j<types.length;j++){
+                if(types[j].isAssignableFrom(args[j].getClass())){
+                    isMatch = false;
+                    break;
+                }
+            }
+            if(isMatch){
+                //对于原型bean 缓存方法
+                if(bd.isPrototype()){
+                    bd.setConstructor(firstFilterAfter.get(i));
+                }
+                return firstFilterAfter.get(i);
+            }
+        }
+        //未能匹配到
+        throw new Exception("不存在对应的构造函数：" + args);
+    }
+
     private void doInit(BeanDefinition bd, Object instance) {
         Class<?> beanClass = instance.getClass();
         if(StringUtils.isNotBlank(bd.getBeanInitMethodName())){
@@ -119,13 +220,22 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
 
     /**
      * 构造方法创建实例
-     * @param beanClass
+     * @param bd
      * @return
      */
-    private Object createBeanByConstruct(Class<?> beanClass) {
+    private Object createBeanByConstruct(BeanDefinition bd) {
         Object instance = null;
         try {
-            instance = beanClass.newInstance();
+            //解析构造参数
+            List<?> constructorArg = bd.getConstructorArg();
+            Object[] objects = parseConstructorArgs(constructorArg);
+            //匹配构造参数
+            Constructor<?> constructor = matchConstructor(bd, objects);
+            if(constructor != null){
+                instance = constructor.newInstance(objects);
+            }else {
+                instance = bd.getBeanClass().newInstance();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

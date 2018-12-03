@@ -2,10 +2,14 @@ package beandefinition;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.List;
+
 /**
  * @author ly
  * @create 2018-11-28 22:41
- * bean¶¨Òå½Ó¿Ú Ìá¹©´´½¨beanµÄĞÅÏ¢
+ * beanå®šä¹‰æ¥å£ æä¾›åˆ›å»ºbeançš„ä¿¡æ¯
  **/
 public interface BeanDefinition {
 
@@ -14,19 +18,19 @@ public interface BeanDefinition {
     String PROTOTYPE = "prototype";
 
     /**
-     * »ñÈ¡beanµÄ×Ö½ÚÂë¶ÔÏó
+     * è·å–beançš„å­—èŠ‚ç å¯¹è±¡
      * @return
      */
     Class<?> getBeanClass();
 
     /**
-     * »ñÈ¡´´½¨beanµÄ¹¤³§Ãû
+     * è·å–åˆ›å»ºbeançš„å·¥å‚å
      * @return
      */
     String getBeanFactory();
 
     /**
-     * »ñÈ¡´´½¨beanµÄÊµÀı·½·¨
+     * è·å–åˆ›å»ºbeançš„å®ä¾‹æ–¹æ³•
      * @return
      */
     String getCreateBeanMethod();
@@ -38,7 +42,7 @@ public interface BeanDefinition {
     String getBeanDestoryMethodName();
 
     /**
-     * »ñÈ¡beanµÄÀàĞÍ
+     * è·å–beançš„ç±»å‹
      * @return
      */
     String getScope();
@@ -48,18 +52,32 @@ public interface BeanDefinition {
     boolean isPrototype();
 
     /**
-     * Ğ£Ñé´«ÈëµÄbean¶¨ÒåÊÇ·ñÕıÈ·
+     * æ ¡éªŒä¼ å…¥çš„beanå®šä¹‰æ˜¯å¦æ­£ç¡®
      * @return
      */
     default boolean validate(){
 
         if(getBeanClass() == null){
-            //×Ö½ÚÂëÎÄ¼şÎª¿Õ ²¢ÇÒ´´½¨beanµÄ¹¤³§Îª¿Õ ²»ºÏ·¨
+            //å­—èŠ‚ç æ–‡ä»¶ä¸ºç©º å¹¶ä¸”åˆ›å»ºbeançš„å·¥å‚ä¸ºç©º ä¸åˆæ³•
             if(StringUtils.isBlank(getBeanFactory()) && StringUtils.isBlank(getCreateBeanMethod())){
                 return false;
             }
         }
         return true;
     }
+
+    //DI
+
+    /**
+     * ä¼ å…¥çš„æ„é€ å‚æ•°
+     * @return
+     */
+    List<?> getConstructorArg();
+
+    //ä¸‹é¢çš„æ–¹æ³•æ—¶ä¸ºäº†ç¼“å­˜ç›¸åº”çš„è°ƒç”¨æ–¹æ³•
+    Constructor<?> getConstructor();
+    void setConstructor(Constructor<?> constructor);
+    Method getFactoryMethod();
+    void setFactoryMethod(Method factoryMethod);
 
 }

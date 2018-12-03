@@ -2,6 +2,10 @@ package beandefinition.impl;
 
 import beandefinition.BeanDefinition;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.List;
+
 /**
  * bean定义实现
  *
@@ -23,6 +27,16 @@ public class DefaultBeanDefinition implements BeanDefinition{
     private String beanDestoryMethodName;
 
     private boolean isSingleton;
+
+    private Constructor constructor;
+
+    private Method method;
+
+    private List<?> constructorArg;
+
+    public void setConstructorArg(List<?> constructorArg) {
+        this.constructorArg = constructorArg;
+    }
 
     public void setClazz(Class<?> clazz) {
         this.clazz = clazz;
@@ -95,5 +109,30 @@ public class DefaultBeanDefinition implements BeanDefinition{
     @Override
     public boolean isPrototype() {
         return !this.isSingleton;
+    }
+
+    @Override
+    public List<?> getConstructorArg() {
+        return this.constructorArg;
+    }
+
+    @Override
+    public Constructor<?> getConstructor() {
+        return this.constructor;
+    }
+
+    @Override
+    public void setConstructor(Constructor<?> constructor) {
+        this.constructor = constructor;
+    }
+
+    @Override
+    public Method getFactoryMethod() {
+        return this.method;
+    }
+
+    @Override
+    public void setFactoryMethod(Method factoryMethod) {
+        this.method = method;
     }
 }
