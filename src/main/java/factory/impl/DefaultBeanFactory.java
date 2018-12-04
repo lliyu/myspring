@@ -32,7 +32,7 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
     private Map<String, Object> beanMap = new ConcurrentHashMap<>();
 
     //记录正在创建的bean
-    private ThreadLocal<Set<String>> buildingBeans = new ThreadLocal<>();
+    private ThreadLocal<Set<String>> initialedBeans = new ThreadLocal<>();
 
     @Override
     public void register(BeanDefinition bd, String beanName) {
@@ -71,13 +71,26 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
         return bdMap.get(beanName);
     }
 
-    public Object doGetBean(String beanName) throws InstantiationException, IllegalAccessException {
+    public Object doGetBean(String beanName) throws Exception {
         if(!beanMap.containsKey(beanName)){
             log.info("[" + beanName + "]不存在");
         }
 
-        //判断该bean是否已经实例化
-        //todo
+        // 记录正在创建的Bean
+        Set<String> beans = this.initialedBeans.get();
+        if (beans == null) {
+            beans = new HashSet<>();
+            this.initialedBeans.set(beans);
+        }
+
+        // 检测循环依赖
+        if (beans.contains(beanName)) {
+            throw new Exception("检测到" + beanName + "存在循环依赖：" + beans);
+        }
+
+        // 记录正在创建的Bean
+        beans.add(beanName);
+
 
         Object instance = beanMap.get(beanName);
 
@@ -104,6 +117,8 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
         }
 
         this.doInit(bd, instance);
+        //创建完成 移除该bean的记录
+        beans.remove(beanName);
 
         if(instance != null && bd.isSingleton()){
             beanMap.put(beanName, instance);
@@ -117,7 +132,7 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
      * @param constructorArgs
      * @return
      */
-    private Object[] parseConstructorArgs(List constructorArgs) throws IllegalAccessException, InstantiationException {
+    private Object[] parseConstructorArgs(List constructorArgs) throws Exception {
 
         if(constructorArgs==null || constructorArgs.size()==0){
             return null;
