@@ -3,8 +3,10 @@ import beandefinition.impl.DefaultBeanDefinition;
 import factory.impl.DefaultBeanFactory;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author ly
@@ -15,7 +17,7 @@ public class MySpringTest {
     static DefaultBeanFactory factory = new DefaultBeanFactory();
 
     @Test
-    public void test() throws IllegalAccessException, InstantiationException {
+    public void test() throws Exception {
         DefaultBeanDefinition bd = new DefaultBeanDefinition();
         bd.setClazz(User.class);
         bd.setSingleton(true);
@@ -27,7 +29,9 @@ public class MySpringTest {
         args.add(22);
         bd.setConstructorArg(args);
         bd.setBeanInitMethodName("init");
-
+        Map<String, Object> values = new HashMap<>();
+        values.put("name", "lingling");
+        bd.setPropertyKeyValue(values);
         factory.register(bd, "user");
 
         System.out.println(factory.doGetBean("user"));

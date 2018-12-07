@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author ly
@@ -79,5 +80,9 @@ public interface BeanDefinition {
     void setConstructor(Constructor<?> constructor);
     Method getFactoryMethod();
     void setFactoryMethod(Method factoryMethod);
+
+    //属性依赖
+    Map<String,Object> getPropertyKeyValue();
+    void setPropertyKeyValue(Map<String,Object> properties);
 
 }

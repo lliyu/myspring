@@ -7,10 +7,12 @@ import factory.BeanFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,13 +39,8 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
     @Override
     public void register(BeanDefinition bd, String beanName) {
 
-        if(StringUtils.isBlank(beanName)){
-            log.error("beanName不能为空 beanName:" + beanName);
-        }
-        if(bd == null){
-            log.error("BeanDefinition不能为空 bd:" + beanName);
-            return;
-        }
+        Assert.assertNotNull("beanName不能为空 beanName", beanName);
+        Assert.assertNotNull("BeanDefinition不能为空", bd);
 
         if(bdMap.containsKey(beanName)){
             log.info("[" + beanName + "]已经存在");
@@ -91,7 +88,6 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
         // 记录正在创建的Bean
         beans.add(beanName);
 
-
         Object instance = beanMap.get(beanName);
 
         if(instance != null){
@@ -117,6 +113,9 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
         }
 
         this.doInit(bd, instance);
+
+        //添加属性依赖
+        this.parsePropertyValues(bd, instance);
         //创建完成 移除该bean的记录
         beans.remove(beanName);
 
@@ -146,13 +145,7 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
                 String beanName = ((BeanReference) arg).getBeanName();
                 value = this.doGetBean(beanName);
             }else if(arg instanceof List){
-                List<BeanReference> references = (List<BeanReference>) arg;
-                List param = new LinkedList();
-                for(BeanReference reference:references){
-                    Object o = this.doGetBean(reference.getBeanName());
-                    param.add(o);
-                }
-                value = param;
+                value = parseListArg((List) arg);
             }else if(arg instanceof Map){
                 //todo 处理map
             }else if(arg instanceof Properties){
@@ -230,6 +223,60 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
         }
         //未能匹配到
         throw new Exception("不存在对应的构造函数：" + args);
+    }
+
+    private void parsePropertyValues(BeanDefinition bd, Object instance) throws Exception {
+        Map<String, Object> propertyKeyValue = bd.getPropertyKeyValue();
+        if(propertyKeyValue==null || propertyKeyValue.size()==0){
+            return ;
+        }
+        Class<?> aClass = instance.getClass();
+        Set<Map.Entry<String, Object>> entries = propertyKeyValue.entrySet();
+        for(Map.Entry<String, Object> entry:entries){
+            //获取指定的字段信息
+            Field field = aClass.getDeclaredField(entry.getKey());
+            //将访问权限设置为true
+            field.setAccessible(true);
+            Object arg = entry.getValue();
+            Object value = null;
+            if(arg instanceof BeanReference){
+                String beanName = ((BeanReference) arg).getBeanName();
+                value = this.doGetBean(beanName);
+            }else if(arg instanceof List){
+                List param = parseListArg((List) arg);
+                value = param;
+            }else if(arg instanceof Map){
+                //todo 处理map
+            }else if(arg instanceof Properties){
+                //todo 处理属性文件
+            }else {
+                value = arg;
+            }
+            field.set(instance, value);
+        }
+    }
+
+    private List parseListArg(List arg) throws Exception {
+        //遍历list
+        List param = new LinkedList();
+        for(Object value:arg){
+            Object res = new Object();
+            if(arg instanceof BeanReference){
+                String beanName = ((BeanReference) value).getBeanName();
+                res = this.doGetBean(beanName);
+            }else if(arg instanceof List){
+                //递归 因为list中可能还存有list
+                res = parseListArg(arg);
+            }else if(arg instanceof Map){
+                //todo 处理map
+            }else if(arg instanceof Properties){
+                //todo 处理属性文件
+            }else {
+                res = arg;
+            }
+            param.add(res);
+        }
+        return param;
     }
 
     private void doInit(BeanDefinition bd, Object instance) {

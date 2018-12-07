@@ -5,6 +5,7 @@ import beandefinition.BeanDefinition;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 /**
  * bean定义实现
@@ -33,6 +34,8 @@ public class DefaultBeanDefinition implements BeanDefinition{
     private Method method;
 
     private List<?> constructorArg;
+
+    private Map<String,Object> values;
 
     public void setConstructorArg(List<?> constructorArg) {
         this.constructorArg = constructorArg;
@@ -134,5 +137,15 @@ public class DefaultBeanDefinition implements BeanDefinition{
     @Override
     public void setFactoryMethod(Method factoryMethod) {
         this.method = method;
+    }
+
+    @Override
+    public Map<String, Object> getPropertyKeyValue() {
+        return this.values;
+    }
+
+    @Override
+    public void setPropertyKeyValue(Map<String, Object> properties) {
+        this.values = properties;
     }
 }
