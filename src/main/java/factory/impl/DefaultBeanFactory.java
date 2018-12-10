@@ -2,6 +2,7 @@ package factory.impl;
 
 import beandefinition.BeanDefinition;
 import beandefinition.BeanDefinitionRegistry;
+import beandefinition.BeanPostProcessor;
 import beanreference.BeanReference;
 import factory.BeanFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -35,6 +36,15 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
 
     //记录正在创建的bean
     private ThreadLocal<Set<String>> initialedBeans = new ThreadLocal<>();
+
+    //记录观察者
+    private List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
+
+
+    @Override
+    public void registerBeanPostProcessor(BeanPostProcessor processor) {
+        beanPostProcessors.add(processor);
+    }
 
     @Override
     public void register(BeanDefinition bd, String beanName) {
@@ -119,11 +129,19 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
         //创建完成 移除该bean的记录
         beans.remove(beanName);
 
+        applyBeanPostProcessor(instance, beanName);
+
         if(instance != null && bd.isSingleton()){
             beanMap.put(beanName, instance);
         }
 
         return instance;
+    }
+
+    private void applyBeanPostProcessor(Object instance, String beanName) {
+        for(BeanPostProcessor postProcessor:beanPostProcessors){
+            postProcessor.postProcessWeaving(instance, beanName);
+        }
     }
 
     /**

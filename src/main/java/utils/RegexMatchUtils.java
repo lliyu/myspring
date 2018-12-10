@@ -29,6 +29,12 @@ public class RegexMatchUtils {
         return split[0];
     }
 
+    /**
+     * 匹配类名
+     * @param expression
+     * @return
+     * @throws Exception
+     */
     public static String matchClassName(String expression) throws Exception {
         Pattern compile = Pattern.compile("(?<=\\().+?\\)");
         Matcher matcher = compile.matcher(expression);
@@ -41,17 +47,12 @@ public class RegexMatchUtils {
         }
         //aop.pointcut.impl.RegexExpressionPointCutResolver.*(..)
         String longName = split[1];
-        compile = Pattern.compile("(.+?)\\..+\\(");
+        compile = Pattern.compile("(.+?)(?=\\..+\\()");
         matcher = compile.matcher(longName);
+        StringBuilder sb = new StringBuilder();
         while (matcher.find()){
-            System.out.println(matcher.group());
+            sb.append(matcher.group());
         }
-        return split[0];
+        return sb.toString();
     }
-
-    public static void main(String[] args) throws Exception {
-        System.out.println();
-        matchClassName("execution(* aop.pointcut.impl.RegexExpressionPointCutResolver.*(..))");
-    }
-
 }

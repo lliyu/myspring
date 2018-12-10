@@ -1,5 +1,7 @@
 package factory;
 
+import beandefinition.BeanPostProcessor;
+
 /**
  * 接口描述:
  * 作者: 李宇
@@ -8,5 +10,7 @@ package factory;
 public interface BeanFactory {
 
     Object getBean(String beanName);
+
+    void registerBeanPostProcessor(BeanPostProcessor processor);
 
 }
