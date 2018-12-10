@@ -1,6 +1,7 @@
 package aop.pointcut.impl;
 
 import aop.pointcut.RegexExpreseionPointCut;
+import utils.RegexMatchUtils;
 
 import java.lang.reflect.Method;
 import java.util.regex.Matcher;
@@ -14,13 +15,16 @@ import java.util.regex.Pattern;
 public class RegexExpressionPointCutResolver implements RegexExpreseionPointCut {
 
     @Override
-    public boolean matchsClass(Class<?> targetClass, String expression) {
+    public boolean matchsClass(Class<?> targetClass, String expression) throws Exception {
+        //表达式中的类名
+        String className = RegexMatchUtils.matchClassName(expression);
+
         //将.转换为普通的字符
         expression.replace(".", "\\.");
         expression.replace("*", ".*");
         //全路径
         String name = targetClass.getName();
-        boolean matches = Pattern.matches(expression, name);
+        boolean matches = Pattern.matches(className, name);
         return matches;
     }
 
