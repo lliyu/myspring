@@ -41,37 +41,31 @@ public class RegexMatchUtils {
      * @throws Exception
      */
     public static String matchClassName(String expression) throws Exception {
-        String[] split = validateExpresseion(expression);
-        //aop.pointcut.impl.RegexExpressionPointCutResolver.*(..)
-        String longName = split[1];
-        Pattern compile = Pattern.compile("(.+?)(?=\\..+\\()");
-        Matcher matcher = compile.matcher(longName);
-        StringBuilder sb = new StringBuilder();
-        while (matcher.find()){
-            System.out.println(matcher.group());
-//            sb.append(matcher.group());
-        }
-        return sb.toString();
+        return match(expression, "(.+?)(?=\\..+\\()");
+    }
+
+    public static String matchMethodParam(String expression) throws Exception {
+        return match(expression, "(?<=\\()(.*?)(?=\\))");
     }
 
     public static String matchMethodName(String expression) throws Exception {
+        return match(expression, "[^\\.]+?(?=\\()");
+    }
+
+    private static String match(String expression, String s) throws Exception {
         String[] split = validateExpresseion(expression);
         String pathName = split[1];
-        Pattern compile = Pattern.compile("(?<=\\().+?\\)");
-//        Pattern compile = Pattern.compile("(?<=\\.)(.+?)(?<=\\.)");
+        Pattern compile = Pattern.compile(s);
         Matcher matcher = compile.matcher(pathName);
         StringBuilder sb = new StringBuilder();
-        while (matcher.find()){
-//            sb.append();
-            System.out.println(matcher.group());
+        while (matcher.find()) {
+            sb.append(matcher.group());
         }
         return sb.toString();
     }
 
-
-
     public static void main(String[] args) throws Exception {
-        String s = matchMethodName("execution(* aop.pointcut.impl.RegexExpressionPointCutResolver.*(..))");
+        String s = matchMethodName("execution(* aop.pointcut.impl.RegexExpressionPointCutResolver.test(..))");
         System.out.println(s);
     }
 }

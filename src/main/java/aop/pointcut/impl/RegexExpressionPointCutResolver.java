@@ -4,7 +4,6 @@ import aop.pointcut.RegexExpreseionPointCut;
 import utils.RegexMatchUtils;
 
 import java.lang.reflect.Method;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -29,18 +28,18 @@ public class RegexExpressionPointCutResolver implements RegexExpreseionPointCut 
     }
 
     @Override
-    public boolean matchsMethod(Method method, Class<?> targetClass, String expresseion) {
-        return false;
-    }
-
-    public static void main(String[] args) {
-        //execution(* aop.pointcut.impl.RegexExpressionPointCutResolver.*(..))
-        boolean matcher = Pattern.matches("aop\\.pointcut\\..*\\.Regex.*", "aop.pointcut.impl.RegexExpressionPointCutResolver");
-        System.out.println(matcher);
-        Method[] methods = RegexExpressionPointCutResolver.class.getDeclaredMethods();
-        for(int i=0;i<methods.length;i++){
-            System.out.println(methods[i].getName());
+    public boolean matchsMethod(Class<?> targetClass, Method method, String expresseion) throws Exception {
+        boolean isMatch = matchsClass(targetClass, expresseion);
+        if(!isMatch){
+            return false;
         }
-
+//        String param = RegexMatchUtils.matchMethodParam(expresseion);
+        String matchName = RegexMatchUtils.matchMethodName(expresseion);
+        //仅匹配方法名
+        String methodName = method.getName();
+        //暂时只匹配方法名
+        //参数的匹配比较麻烦 这里未实现
+        return matchName.equals(methodName);
     }
+
 }
