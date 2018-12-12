@@ -14,7 +14,6 @@ import org.apache.commons.logging.LogFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.List;
 
 /**
@@ -26,7 +25,7 @@ public class CglibDynamicProxy implements MethodInterceptor,AopProxy {
 
     private static final Log logger = LogFactory.getLog(JDKDynamicProxy.class);
     //加强器 用于生成代理对象
-    private Enhancer enhancer;
+    private Enhancer enhancer = new Enhancer();
     private Object target;
     private List<Advisor> advisors;
     private BeanFactory beanFactory;
@@ -41,7 +40,7 @@ public class CglibDynamicProxy implements MethodInterceptor,AopProxy {
 
     @Override
     public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Exception {
-        return AopUtils.applyAdvice(target, advisors, objects, method, beanFactory);
+        return AopUtils.applyAdvice(target, o, advisors, objects, method, beanFactory);
     }
 
     @Override
@@ -62,7 +61,11 @@ public class CglibDynamicProxy implements MethodInterceptor,AopProxy {
         Object res = null;
         if(constructors.length > 0){
             BeanDefinition bd = ((DefaultBeanFactory) beanFactory).getBeanDefinition(beanName);
-            return enhancer.create(bd.getConstructor().getParameterTypes(), bd.getConstructorArg().toArray());
+            if(bd.getConstructor() != null){
+                return enhancer.create(bd.getConstructor().getParameterTypes(), bd.getConstructorArg().toArray());
+            }else {
+                return enhancer.create();
+            }
         }else {
             return enhancer.create();
         }

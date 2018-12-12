@@ -48,6 +48,6 @@ public class JDKDynamicProxy implements InvocationHandler,AopProxy {
     public Object invoke(Object proxy, Method method, Object[] args) throws Exception {
         //不确定有哪些方法需要增强
         //不确定有哪些advice会对该类增强
-        return AopUtils.applyAdvice(target, getMatchAdvisors(target.getClass(), advisors), args, method, beanFactory);
+        return AopUtils.applyAdvice(target, proxy, getMatchAdvisors(target.getClass(), advisors), args, method, beanFactory);
     }
 }

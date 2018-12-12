@@ -2,7 +2,7 @@ package factory.impl;
 
 import beandefinition.BeanDefinition;
 import beandefinition.BeanDefinitionRegistry;
-import beandefinition.BeanPostProcessor;
+import beandefinition.AopPostProcessor;
 import beanreference.BeanReference;
 import factory.BeanFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -38,12 +38,12 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
     private ThreadLocal<Set<String>> initialedBeans = new ThreadLocal<>();
 
     //记录观察者
-    private List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
+    private List<AopPostProcessor> aopPostProcessors = new ArrayList<>();
 
 
     @Override
-    public void registerBeanPostProcessor(BeanPostProcessor processor) {
-        beanPostProcessors.add(processor);
+    public void registerBeanPostProcessor(AopPostProcessor processor) {
+        aopPostProcessors.add(processor);
     }
 
     @Override
@@ -129,7 +129,8 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
         //创建完成 移除该bean的记录
         beans.remove(beanName);
 
-        applyBeanPostProcessor(instance, beanName);
+        //添加aop处理
+        instance = applyAopBeanPostProcessor(instance, beanName);
 
         if(instance != null && bd.isSingleton()){
             beanMap.put(beanName, instance);
@@ -138,10 +139,11 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
         return instance;
     }
 
-    private void applyBeanPostProcessor(Object instance, String beanName) {
-        for(BeanPostProcessor postProcessor:beanPostProcessors){
-            postProcessor.postProcessWeaving(instance, beanName);
+    private Object applyAopBeanPostProcessor(Object instance, String beanName) throws Exception {
+        for(AopPostProcessor postProcessor: aopPostProcessors){
+            instance = postProcessor.postProcessWeaving(instance, beanName);
         }
+        return instance;
     }
 
     /**
@@ -372,11 +374,8 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
     }
 
     @Override
-    public Object getBean(String beanName) {
-        if(!beanMap.containsKey(beanName)){
-            log.info("[" + beanName + "]不存在");
-        }
-        return beanMap.get(beanName);
+    public Object getBean(String beanName) throws Exception {
+        return doGetBean(beanName);
     }
 
     @Override

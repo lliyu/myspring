@@ -39,7 +39,10 @@ public class RegexExpressionPointCutResolver implements RegexExpreseionPointCut 
         String methodName = method.getName();
         //暂时只匹配方法名
         //参数的匹配比较麻烦 这里未实现
-        return matchName.equals(methodName);
+        if("*".equals(matchName)){
+            return true;
+        }
+        return Pattern.matches(matchName, methodName);
     }
 
 }
