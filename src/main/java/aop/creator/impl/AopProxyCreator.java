@@ -5,7 +5,7 @@ import aop.advisor.AdvisorRegistry;
 import aop.advisor.PointCutAdvisor;
 import aop.creator.AopFactory;
 import aware.BeanFactoryAware;
-import beandefinition.AopPostProcessor;
+import postprocessor.AopPostProcessor;
 import factory.BeanFactory;
 import org.apache.commons.collections.CollectionUtils;
 

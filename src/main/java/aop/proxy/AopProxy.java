@@ -11,6 +11,7 @@ import java.util.List;
  * 代理提供接口
  */
 public interface AopProxy {
+
     Object getProxy();
 
     Object getProxy(ClassLoader classLoader);

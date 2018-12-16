@@ -2,7 +2,7 @@ package factory.impl;
 
 import beandefinition.BeanDefinition;
 import beandefinition.BeanDefinitionRegistry;
-import beandefinition.AopPostProcessor;
+import postprocessor.AopPostProcessor;
 import beanreference.BeanReference;
 import factory.BeanFactory;
 import org.apache.commons.lang3.StringUtils;

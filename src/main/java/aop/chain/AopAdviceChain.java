@@ -28,6 +28,12 @@ public class AopAdviceChain {
     private int index = 0;
 
     public AopAdviceChain(Method method, Object target, Object[] args, Object proxy, List<Advice> advices) {
+        try {
+            nextMethod = AopAdviceChain.class.getMethod("invoke", null);
+        } catch (NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+
         this.method = method;
         this.target = target;
         this.args = args;
@@ -43,12 +49,14 @@ public class AopAdviceChain {
                 ((BeforeAdvice) advice).before(method, args, target);
             }else if(advice instanceof AroundAdvice){
                 //环绕增强
-                ((AroundAdvice) advice).around(nextMethod, null, this);
+                return ((AroundAdvice) advice).around(nextMethod, null, this);
             } else if(advice instanceof AfterAdvice){
                 //后置增强
                 //如果是后置增强需要先取到返回值
                 Object res = this.invoke();
                 ((AfterAdvice) advice).after(method, args, target, res);
+                //后置增强后返回  否则会多执行一次
+                return res;
             }
             return this.invoke();
         }else {

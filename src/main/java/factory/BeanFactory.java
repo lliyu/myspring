@@ -1,6 +1,6 @@
 package factory;
 
-import beandefinition.AopPostProcessor;
+import postprocessor.AopPostProcessor;
 
 /**
  * 接口描述:

@@ -1,3 +1,5 @@
+import advice.AfterAdvice;
+import advice.AroundAdvice;
 import advice.BeforeAdvice;
 import aop.advisor.impl.RegexMatchAdvisor;
 import aop.creator.impl.AopProxyCreator;
@@ -26,14 +28,14 @@ public class AopTest {
 
         factory.register(bd, "user");
         bd = new DefaultBeanDefinition();
-        bd.setClazz(BeforeAdvice.class);
-        factory.register(bd, "myBeforeAdvice");
+        bd.setClazz(AroundAdvice.class);
+        factory.register(bd, "AroundAdvice");
 
         AopProxyCreator aapc = new AopProxyCreator();
         aapc.setBeanFactory(factory);
         factory.registerBeanPostProcessor(aapc);
         // 向AdvisorAutoProxyCreator注册Advisor
-        aapc.register(new RegexMatchAdvisor("myBeforeAdvice", "execution(* bean.User.*())", new RegexExpressionPointCutResolver()));
+        aapc.register(new RegexMatchAdvisor("AroundAdvice", "execution(* bean.User.*())", new RegexExpressionPointCutResolver()));
 
         User user = (User) factory.doGetBean("user");
         user.sayHello();
