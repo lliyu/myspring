@@ -15,4 +15,5 @@ JDK8+
 - [X] IOC
 - [X] DI
 - [X] AOP
+- [X] Spring xml配置和annotation
 - [ ] SpringMvc
