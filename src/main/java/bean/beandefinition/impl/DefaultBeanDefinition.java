@@ -1,6 +1,6 @@
-package beandefinition.impl;
+package bean.beandefinition.impl;
 
-import beandefinition.BeanDefinition;
+import bean.beandefinition.BeanDefinition;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -13,10 +13,11 @@ import java.util.Map;
  * @author ly
  * @Date 2018-12-02 11:30
  **/
-public class DefaultBeanDefinition implements BeanDefinition{
+public class DefaultBeanDefinition implements BeanDefinition {
 
     private Class<?> clazz;
 
+    private String beanName;
     private String beanFactoryName;
 
     private String createBeanMethodName;
@@ -72,6 +73,15 @@ public class DefaultBeanDefinition implements BeanDefinition{
     @Override
     public Class<?> getBeanClass() {
         return this.clazz;
+    }
+
+    @Override
+    public String getBeanName() {
+        return beanName;
+    }
+
+    public void setBeanName(String beanName) {
+        this.beanName = beanName;
     }
 
     @Override

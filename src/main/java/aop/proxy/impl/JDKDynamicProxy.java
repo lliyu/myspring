@@ -3,7 +3,7 @@ package aop.proxy.impl;
 import aop.AopUtils;
 import aop.advisor.Advisor;
 import aop.proxy.AopProxy;
-import factory.BeanFactory;
+import bean.factory.BeanFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

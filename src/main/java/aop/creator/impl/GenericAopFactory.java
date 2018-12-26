@@ -5,7 +5,7 @@ import aop.creator.AopFactory;
 import aop.proxy.AopProxy;
 import aop.proxy.impl.CglibDynamicProxy;
 import aop.proxy.impl.JDKDynamicProxy;
-import factory.BeanFactory;
+import bean.factory.BeanFactory;
 
 import java.util.List;
 

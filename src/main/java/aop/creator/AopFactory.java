@@ -3,7 +3,7 @@ package aop.creator;
 import aop.advisor.Advisor;
 import aop.creator.impl.GenericAopFactory;
 import aop.proxy.AopProxy;
-import factory.BeanFactory;
+import bean.factory.BeanFactory;
 
 import java.util.List;
 

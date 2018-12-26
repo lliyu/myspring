@@ -1,4 +1,4 @@
-package postprocessor;
+package bean.postprocessor;
 
 /**
  * @author ly

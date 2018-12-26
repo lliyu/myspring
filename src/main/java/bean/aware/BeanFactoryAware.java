@@ -1,6 +1,6 @@
-package aware;
+package bean.aware;
 
-import factory.BeanFactory;
+import bean.factory.BeanFactory;
 
 public interface BeanFactoryAware extends Aware{
 

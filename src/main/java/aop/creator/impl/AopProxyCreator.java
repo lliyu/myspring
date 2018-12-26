@@ -4,9 +4,9 @@ import aop.advisor.Advisor;
 import aop.advisor.AdvisorRegistry;
 import aop.advisor.PointCutAdvisor;
 import aop.creator.AopFactory;
-import aware.BeanFactoryAware;
-import postprocessor.AopPostProcessor;
-import factory.BeanFactory;
+import bean.aware.BeanFactoryAware;
+import bean.postprocessor.AopPostProcessor;
+import bean.factory.BeanFactory;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;

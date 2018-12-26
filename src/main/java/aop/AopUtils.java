@@ -4,7 +4,7 @@ import aop.advice.Advice;
 import aop.advisor.Advisor;
 import aop.advisor.PointCutAdvisor;
 import aop.chain.AopAdviceChain;
-import factory.BeanFactory;
+import bean.factory.BeanFactory;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.lang.reflect.Method;

@@ -1,4 +1,4 @@
-package beandefinition;
+package bean.beandefinition;
 
 /**
  * 接口描述:

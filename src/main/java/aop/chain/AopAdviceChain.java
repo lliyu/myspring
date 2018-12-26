@@ -49,7 +49,7 @@ public class AopAdviceChain {
                 ((BeforeAdvice) advice).before(method, args, target);
             }else if(advice instanceof AroundAdvice){
                 //环绕增强
-                return ((AroundAdvice) advice).around(nextMethod, null, this);
+                return ((AroundAdvice) advice).around(nextMethod, args, this);
             } else if(advice instanceof AfterAdvice){
                 //后置增强
                 //如果是后置增强需要先取到返回值

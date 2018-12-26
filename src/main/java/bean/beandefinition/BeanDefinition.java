@@ -1,4 +1,4 @@
-package beandefinition;
+package bean.beandefinition;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -23,6 +23,8 @@ public interface BeanDefinition {
      * @return
      */
     Class<?> getBeanClass();
+
+    String getBeanName();
 
     /**
      * 获取创建bean的工厂名

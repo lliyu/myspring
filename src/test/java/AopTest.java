@@ -1,12 +1,10 @@
-import advice.AfterAdvice;
 import advice.AroundAdvice;
-import advice.BeforeAdvice;
 import aop.advisor.impl.RegexMatchAdvisor;
 import aop.creator.impl.AopProxyCreator;
 import aop.pointcut.impl.RegexExpressionPointCutResolver;
 import bean.User;
-import beandefinition.impl.DefaultBeanDefinition;
-import factory.impl.DefaultBeanFactory;
+import bean.beandefinition.impl.DefaultBeanDefinition;
+import bean.factory.impl.DefaultBeanFactory;
 import org.junit.Test;
 
 /**

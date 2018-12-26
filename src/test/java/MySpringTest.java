@@ -1,6 +1,6 @@
 import bean.User;
-import beandefinition.impl.DefaultBeanDefinition;
-import factory.impl.DefaultBeanFactory;
+import bean.beandefinition.impl.DefaultBeanDefinition;
+import bean.factory.impl.DefaultBeanFactory;
 import org.junit.Test;
 
 import java.util.HashMap;

@@ -1,10 +1,10 @@
-package factory.impl;
+package bean.factory.impl;
 
-import beandefinition.BeanDefinition;
-import beandefinition.BeanDefinitionRegistry;
-import postprocessor.AopPostProcessor;
-import beanreference.BeanReference;
-import factory.BeanFactory;
+import bean.beandefinition.BeanDefinition;
+import bean.beandefinition.BeanDefinitionRegistry;
+import bean.factory.BeanFactory;
+import bean.postprocessor.AopPostProcessor;
+import bean.beanreference.BeanReference;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

@@ -1,4 +1,4 @@
-package beanreference;
+package bean.beanreference;
 
 /**
  * @Auther: Administrator
