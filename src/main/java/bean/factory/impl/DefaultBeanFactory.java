@@ -47,6 +47,24 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry, 
     }
 
     @Override
+    public String[] getBeanNameForType(Class<?> tClass) {
+        //todo
+        return new String[0];
+    }
+
+    @Override
+    public Map<String, Object> getBeansForType(Class<?> clazz) {
+        //todo
+        return null;
+    }
+
+    @Override
+    public Class getType(String beanName) {
+        Object o = beanMap.get(beanName);
+        return ((BeanDefinition) o).getBeanClass();
+    }
+
+    @Override
     public void register(BeanDefinition bd, String beanName) {
 
         Assert.assertNotNull("beanName不能为空 beanName", beanName);
